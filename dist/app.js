@@ -54,7 +54,7 @@ function loadImage(src, name = "pattern") {
   });
 }
 
-async function useSample() { await loadImage("./assets/sample-cat.png", "maple-cat"); await generate(); }
+async function useSample() { await loadImage("./assets/sample-cat.jpg", "maple-cat"); await generate(); }
 async function useFile(file) {
   if (!file) return;
   if (file.size > 15 * 1024 * 1024) return toast("Please choose an image under 15 MB.");
@@ -263,6 +263,6 @@ if (document.modelContext?.registerTool) {
   Promise.resolve(document.modelContext.registerTool({
     name: "configure_pet_cross_stitch_pattern", title: "Configure pet cross-stitch pattern", description: "Load the built-in pet photo and set the visible cross-stitch pattern width, color count, and fabric count.",
     inputSchema: { type: "object", properties: { width: { type: "integer", minimum: 30, maximum: 100 }, colors: { type: "integer", minimum: 6, maximum: 30 }, fabricCount: { type: "integer", enum: [11, 14, 16, 18] } }, additionalProperties: false }, annotations: { readOnlyHint: false, untrustedContentHint: false },
-    async execute(input) { if (input.width !== undefined) el.width.value = Math.round(input.width / 5) * 5; if (input.colors !== undefined) el.colors.value = Math.round(input.colors / 2) * 2; if (input.fabricCount !== undefined) el.fabric.value = String(input.fabricCount); updateLabels(); if (!state.image) await loadImage("./assets/sample-cat.png", "maple-cat"); await generate(); return { status: "ready", width: Number(el.width.value), height: state.grid.h, colors: state.palette.length, fabricCount: Number(el.fabric.value) }; }
+    async execute(input) { if (input.width !== undefined) el.width.value = Math.round(input.width / 5) * 5; if (input.colors !== undefined) el.colors.value = Math.round(input.colors / 2) * 2; if (input.fabricCount !== undefined) el.fabric.value = String(input.fabricCount); updateLabels(); if (!state.image) await loadImage("./assets/sample-cat.jpg", "maple-cat"); await generate(); return { status: "ready", width: Number(el.width.value), height: state.grid.h, colors: state.palette.length, fabricCount: Number(el.fabric.value) }; }
   }, { signal: lifecycle.signal })).catch(() => {});
 }

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pettostitch.cc/sitemap.xml
