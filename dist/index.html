@@ -52,7 +52,7 @@
     <nav aria-label="Main navigation">
       <a href="#how">How it works</a>
       <a href="#questions">FAQ</a>
-      <button class="quiet-button" id="startButton" type="button">Create a pattern</button>
+      <button class="quiet-button jump-to-studio" id="startButton" type="button">Start creating</button>
     </nav>
   </header>
 
@@ -65,6 +65,7 @@
         <ul class="trust-list" aria-label="Product highlights">
           <li>Free to create</li><li>No account</li><li>Photo stays on your device</li>
         </ul>
+        <button class="hero-button jump-to-studio" type="button">Turn your photo into a pattern <span aria-hidden="true">→</span></button>
       </div>
       <div class="sample-card" aria-label="Example pet photo">
         <img src="./assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">
@@ -130,6 +131,7 @@
               <button id="redoButton" type="button" disabled aria-label="Redo">↷</button>
             </div>
           </div>
+          <p class="editor-hint" id="editorHint" hidden>Select a thread color, then paint or erase directly on the grid.</p>
           <div class="canvas-frame" id="canvasFrame">
             <canvas id="patternCanvas" aria-label="Generated cross-stitch pattern preview"></canvas>
             <div class="empty-state" id="emptyState">
@@ -146,7 +148,7 @@
             <div><span>Colors used</span><strong id="colorsUsed">—</strong></div>
           </div>
           <div class="actions" id="actions" hidden>
-            <button class="secondary-button" id="downloadButton" type="button">Download PNG</button>
+            <button class="secondary-button" id="downloadButton" type="button">Download chart</button>
             <button class="primary-button" id="printButton" type="button">Print pattern</button>
           </div>
         </div>

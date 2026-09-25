@@ -25,7 +25,7 @@ const el = {
   fabric: $("#fabricCount"), regen: $("#regenerateButton"), canvas: $("#patternCanvas"), frame: $("#canvasFrame"), empty: $("#emptyState"), busy: $("#busy"),
   result: $("#resultBar"), actions: $("#actions"), size: $("#patternSize"), finished: $("#finishedSize"), stitches: $("#stitchCount"), used: $("#colorsUsed"),
   palette: $("#paletteList"), paletteTotal: $("#paletteTotal"), download: $("#downloadButton"), print: $("#printButton"), toast: $("#toast"),
-  editor: $("#editorToolbar"), selectedThread: $("#selectedThread"), undo: $("#undoButton"), redo: $("#redoButton"), dialog: $("#photoDialog"),
+  editor: $("#editorToolbar"), editorHint: $("#editorHint"), selectedThread: $("#selectedThread"), undo: $("#undoButton"), redo: $("#redoButton"), dialog: $("#photoDialog"),
   prepCanvas: $("#prepCanvas"), zoom: $("#cropZoom"), zoomOut: $("#cropZoomOut"), tolerance: $("#bgTolerance"), toleranceOut: $("#bgToleranceOut"),
   brushSize: $("#brushSize"), brushSizeOut: $("#brushSizeOut"), closeDialog: $("#closePhotoDialog"), cancelDialog: $("#cancelPhotoButton"),
   resetPhoto: $("#resetPhotoButton"), applyPhoto: $("#applyPhotoButton")
@@ -114,7 +114,7 @@ async function generate() {
     let cells = []; for (let i = 0; i < data.length; i += 4) cells.push(data[i + 3] < 80 ? -1 : palette.indexOf(nearestColor([data[i], data[i + 1], data[i + 2]], palette)));
     cells = cleanGrid(cells, width, height); state.grid = { w: width, h: height, cells }; state.allPalette = palette; state.undo = []; state.redo = [];
     recalculatePattern(); state.selectedColor = state.palette[0]?.index ?? 0; syncSelectedThread(); renderPalette();
-    el.empty.hidden = true; el.result.hidden = false; el.actions.hidden = false; el.editor.hidden = false; el.frame.classList.add("editing");
+    el.empty.hidden = true; el.result.hidden = false; el.actions.hidden = false; el.editor.hidden = false; el.editorHint.hidden = false; el.frame.classList.add("editing");
   } catch (error) { console.error(error); toast("Pattern generation failed. Try a smaller photo."); }
   finally { setBusy(false); }
 }
@@ -189,7 +189,17 @@ function startGridEdit(event) {
 }
 function finishGridEdit() { if (!state.drawing) return; state.drawing = false; if (!state.strokeChanged) state.undo.pop(); recalculatePattern(); }
 
-function download() { if (!state.grid) return; const link = document.createElement("a"); link.download = `${state.imageName}-cross-stitch-${state.grid.w}x${state.grid.h}.png`; link.href = el.canvas.toDataURL("image/png"); link.click(); toast("Pattern PNG downloaded."); }
+function download() {
+  if (!state.grid) return;
+  const previousView = state.view;
+  setView("stitches");
+  const link = document.createElement("a");
+  link.download = `${state.imageName}-cross-stitch-${state.grid.w}x${state.grid.h}.png`;
+  link.href = el.canvas.toDataURL("image/png");
+  link.click();
+  if (previousView !== "stitches") setView(previousView);
+  toast("Color stitch chart downloaded.");
+}
 function setView(view) { state.view = view; $$(".tab").forEach((tab) => { const active = tab.dataset.view === view; tab.classList.toggle("active", active); tab.setAttribute("aria-selected", String(active)); }); render(); }
 
 function openPhotoDialog() { if (!state.sourceImage) return; syncCropControls(); ensureCropMask(); renderCrop(); el.dialog.showModal(); }
@@ -250,7 +260,7 @@ el.regen.addEventListener("click", generate); el.download.addEventListener("clic
 el.fabric.addEventListener("change", () => state.grid && updateStats()); el.width.addEventListener("input", updateLabels); el.colors.addEventListener("input", updateLabels); el.undo.addEventListener("click", undo); el.redo.addEventListener("click", redo);
 el.canvas.addEventListener("pointerdown", startGridEdit); el.canvas.addEventListener("pointermove", (event) => state.drawing && editCell(event)); el.canvas.addEventListener("pointerup", finishGridEdit); el.canvas.addEventListener("pointercancel", finishGridEdit);
 $$('.editor-tool').forEach((button) => button.addEventListener("click", () => { state.editTool = button.dataset.tool; syncEditorTools(); })); $$('.tab').forEach((tab) => tab.addEventListener("click", () => setView(tab.dataset.view)));
-$("#startButton").addEventListener("click", () => { $("#studio").scrollIntoView({ behavior: "smooth" }); setTimeout(() => el.upload.focus(), 500); });
+$$('.jump-to-studio').forEach((button) => button.addEventListener("click", () => { $("#studio").scrollIntoView({ behavior: "smooth" }); setTimeout(() => el.upload.focus(), 500); }));
 ["dragenter", "dragover"].forEach((name) => el.drop.addEventListener(name, (event) => { event.preventDefault(); el.drop.classList.add("dragging"); })); ["dragleave", "drop"].forEach((name) => el.drop.addEventListener(name, (event) => { event.preventDefault(); el.drop.classList.remove("dragging"); })); el.drop.addEventListener("drop", (event) => useFile(event.dataTransfer.files[0]));
 el.closeDialog.addEventListener("click", () => el.dialog.close()); el.cancelDialog.addEventListener("click", () => el.dialog.close()); el.resetPhoto.addEventListener("click", resetCrop); el.applyPhoto.addEventListener("click", applyCrop);
 el.zoom.addEventListener("input", () => { state.crop.zoom = Number(el.zoom.value) / 100; state.crop.manualMask.fill(0); syncCropControls(); renderCrop(); }); el.tolerance.addEventListener("input", () => { state.crop.tolerance = Number(el.tolerance.value); syncCropControls(); renderCrop(); });
