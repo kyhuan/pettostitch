@@ -26,6 +26,7 @@
   <meta name="twitter:image" content="https://pettostitch.cc/assets/sample-cat.jpg">
   <title>图片转十字绣图纸工具｜PetToStitch</title>
   <script defer data-domain="pettostitch.cc" src="https://plausible.shipsolo.io/js/script.js"></script>
+  <script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -79,7 +80,10 @@
         <ul class="trust-list" aria-label="Product highlights">
           <li>免费制作</li><li>无需注册</li><li>照片不会离开设备</li>
         </ul>
-        <button class="hero-button jump-to-studio" type="button">把照片转成十字绣图纸 <span aria-hidden="true">→</span></button>
+        <div class="hero-actions">
+          <button class="hero-button" id="heroUploadButton" type="button">选择照片 <span aria-hidden="true">→</span></button>
+          <button class="hero-sample-button" id="heroSampleButton" type="button">先试试 Maple 示例</button>
+        </div>
       </div>
       <div class="sample-card" aria-label="Example pet photo">
         <img src="/assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">

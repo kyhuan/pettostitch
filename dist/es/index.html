@@ -26,6 +26,7 @@
   <meta name="twitter:image" content="https://pettostitch.cc/assets/sample-cat.jpg">
   <title>Convertir foto en patrón de punto de cruz gratis | PetToStitch</title>
   <script defer data-domain="pettostitch.cc" src="https://plausible.shipsolo.io/js/script.js"></script>
+  <script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -79,7 +80,10 @@
         <ul class="trust-list" aria-label="Product highlights">
           <li>Creación gratuita</li><li>Sin cuenta</li><li>La foto permanece en tu dispositivo</li>
         </ul>
-        <button class="hero-button jump-to-studio" type="button">Convierte tu foto en un patrón <span aria-hidden="true">→</span></button>
+        <div class="hero-actions">
+          <button class="hero-button" id="heroUploadButton" type="button">Elegir una foto <span aria-hidden="true">→</span></button>
+          <button class="hero-sample-button" id="heroSampleButton" type="button">Probar primero con Maple</button>
+        </div>
       </div>
       <div class="sample-card" aria-label="Example pet photo">
         <img src="/assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">

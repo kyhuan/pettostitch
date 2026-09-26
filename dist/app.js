@@ -21,8 +21,10 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const t = window.pettoT || ((text) => text);
 const format = window.pettoFormat || ((key, value) => key === "stitches" ? `${value} stitches` : `${value} colors`);
+const SETTINGS_KEY = "pettostitch-pattern-settings-v1";
 const el = {
   file: $("#fileInput"), upload: $("#uploadButton"), sample: $("#sampleButton"), drop: $("#dropZone"), photoTools: $("#photoToolsButton"),
+  heroUpload: $("#heroUploadButton"), heroSample: $("#heroSampleButton"),
   settings: $("#settingsPanel"), width: $("#gridWidth"), widthOut: $("#gridWidthOut"), colors: $("#colorCount"), colorsOut: $("#colorCountOut"),
   fabric: $("#fabricCount"), regen: $("#regenerateButton"), canvas: $("#patternCanvas"), frame: $("#canvasFrame"), empty: $("#emptyState"), busy: $("#busy"),
   result: $("#resultBar"), actions: $("#actions"), size: $("#patternSize"), finished: $("#finishedSize"), stitches: $("#stitchCount"), used: $("#colorsUsed"),
@@ -36,12 +38,23 @@ const el = {
 const state = {
   sourceImage: null, image: null, imageName: "pattern", grid: null, allPalette: [], palette: [], view: "stitches", processing: false,
   editTool: "paint", selectedColor: null, undo: [], redo: [], drawing: false, strokeChanged: false, renderCell: 10,
-  crop: { zoom: 1, offsetX: 0, offsetY: 0, tolerance: 0, maskTool: "move", brushSize: 32, manualMask: null, rendered: null }, cropPointer: null
+  crop: { zoom: 1, offsetX: 0, offsetY: 0, tolerance: 0, maskTool: "move", brushSize: 32, manualMask: null, rendered: null }, cropPointer: null, entryPoint: "studio"
 };
 
+function track(name, props = {}) { if (typeof window.plausible === "function") window.plausible(name, { props }); }
 function toast(message) { el.toast.textContent = message; el.toast.classList.add("show"); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.toast.classList.remove("show"), 2200); }
 function setBusy(on) { state.processing = on; el.busy.hidden = !on; el.regen.disabled = on; }
 function updateLabels() { el.widthOut.value = format("stitches", el.width.value); el.colorsOut.value = format("colors", el.colors.value); }
+function revealStudio() { $("#studio").scrollIntoView({ behavior: "smooth", block: "start" }); }
+function saveSettings() { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ width: el.width.value, colors: el.colors.value, fabric: el.fabric.value })); } catch {} }
+function restoreSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    if (saved?.width) el.width.value = saved.width;
+    if (saved?.colors) el.colors.value = saved.colors;
+    if (saved?.fabric) el.fabric.value = saved.fabric;
+  } catch {}
+}
 
 function loadImage(src, name = "pattern") {
   return new Promise((resolve, reject) => {
@@ -61,6 +74,7 @@ async function useFile(file) {
   if (!file) return;
   if (file.size > 15 * 1024 * 1024) return toast(t("Please choose an image under 15 MB."));
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return toast(t("Please choose a JPG, PNG, or WebP image."));
+  track("Photo selected", { source: state.entryPoint, format: file.type.replace("image/", "") });
   const url = URL.createObjectURL(file);
   try { await loadImage(url, file.name); await generate(); openPhotoDialog(); }
   catch { toast(t("We couldn’t read that image.")); }
@@ -115,8 +129,9 @@ async function generate() {
     const data = samplePixels(state.image, width, height), palette = choosePalette(data, Number(el.colors.value));
     let cells = []; for (let i = 0; i < data.length; i += 4) cells.push(data[i + 3] < 80 ? -1 : palette.indexOf(nearestColor([data[i], data[i + 1], data[i + 2]], palette)));
     cells = cleanGrid(cells, width, height); state.grid = { w: width, h: height, cells }; state.allPalette = palette; state.undo = []; state.redo = [];
-    recalculatePattern(); state.selectedColor = state.palette[0]?.index ?? 0; syncSelectedThread(); renderPalette();
+    recalculatePattern(); state.selectedColor = state.palette[0]?.index ?? 0; syncSelectedThread(); renderPalette(); saveSettings();
     el.empty.hidden = true; el.result.hidden = false; el.actions.hidden = false; el.editor.hidden = false; el.editorHint.hidden = false; el.frame.classList.add("editing");
+    track("Pattern generated", { width, colors: state.palette.length, source: state.entryPoint });
   } catch (error) { console.error(error); toast(t("Pattern generation failed. Try a smaller photo.")); }
   finally { setBusy(false); }
 }
@@ -200,6 +215,7 @@ function download() {
   link.href = el.canvas.toDataURL("image/png");
   link.click();
   if (previousView !== "stitches") setView(previousView);
+  track("Chart downloaded", { width: state.grid.w, colors: state.palette.length });
   toast(t("Color stitch chart downloaded."));
 }
 function setView(view) { state.view = view; $$(".tab").forEach((tab) => { const active = tab.dataset.view === view; tab.classList.toggle("active", active); tab.setAttribute("aria-selected", String(active)); }); render(); }
@@ -254,12 +270,14 @@ function moveCropPointer(event) {
 function finishCropPointer() { state.cropPointer = null; }
 async function applyCrop() {
   const image = new Image(), loaded = new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; }); image.src = el.prepCanvas.toDataURL("image/png"); await loaded;
-  state.image = image; el.dialog.close(); await generate(); toast(t(state.crop.tolerance ? "Crop and background applied." : "Crop applied."));
+  state.image = image; el.dialog.close(); await generate(); track("Photo prepared", { backgroundRemoval: state.crop.tolerance > 0 ? "on" : "off" }); toast(t(state.crop.tolerance ? "Crop and background applied." : "Crop applied."));
 }
 
-el.upload.addEventListener("click", () => el.file.click()); el.file.addEventListener("change", (event) => useFile(event.target.files[0])); el.sample.addEventListener("click", useSample); el.photoTools.addEventListener("click", openPhotoDialog);
-el.regen.addEventListener("click", generate); el.download.addEventListener("click", download); el.print.addEventListener("click", () => { setView("symbols"); setTimeout(() => window.print(), 100); });
-el.fabric.addEventListener("change", () => state.grid && updateStats()); el.width.addEventListener("input", updateLabels); el.colors.addEventListener("input", updateLabels); el.undo.addEventListener("click", undo); el.redo.addEventListener("click", redo);
+el.heroUpload.addEventListener("click", () => { state.entryPoint = "hero"; track("Photo picker opened", { source: "hero" }); el.file.click(); });
+el.heroSample.addEventListener("click", async () => { state.entryPoint = "hero"; track("Sample tried", { source: "hero" }); await useSample(); revealStudio(); });
+el.upload.addEventListener("click", () => { state.entryPoint = "studio"; track("Photo picker opened", { source: "studio" }); el.file.click(); }); el.file.addEventListener("change", async (event) => { const file = event.target.files[0]; await useFile(file); event.target.value = ""; }); el.sample.addEventListener("click", async () => { state.entryPoint = "studio"; track("Sample tried", { source: "studio" }); await useSample(); }); el.photoTools.addEventListener("click", openPhotoDialog);
+el.regen.addEventListener("click", generate); el.download.addEventListener("click", download); el.print.addEventListener("click", () => { track("Pattern printed", { width: state.grid?.w || 0, colors: state.palette.length }); setView("symbols"); setTimeout(() => window.print(), 100); });
+el.fabric.addEventListener("change", () => { saveSettings(); if (state.grid) updateStats(); }); el.width.addEventListener("input", () => { updateLabels(); saveSettings(); }); el.colors.addEventListener("input", () => { updateLabels(); saveSettings(); }); el.undo.addEventListener("click", undo); el.redo.addEventListener("click", redo);
 el.canvas.addEventListener("pointerdown", startGridEdit); el.canvas.addEventListener("pointermove", (event) => state.drawing && editCell(event)); el.canvas.addEventListener("pointerup", finishGridEdit); el.canvas.addEventListener("pointercancel", finishGridEdit);
 $$('.editor-tool').forEach((button) => button.addEventListener("click", () => { state.editTool = button.dataset.tool; syncEditorTools(); })); $$('.tab').forEach((tab) => tab.addEventListener("click", () => setView(tab.dataset.view)));
 $$('.jump-to-studio').forEach((button) => button.addEventListener("click", () => { $("#studio").scrollIntoView({ behavior: "smooth" }); setTimeout(() => el.upload.focus(), 500); }));
@@ -267,8 +285,8 @@ $$('.jump-to-studio').forEach((button) => button.addEventListener("click", () =>
 el.closeDialog.addEventListener("click", () => el.dialog.close()); el.cancelDialog.addEventListener("click", () => el.dialog.close()); el.resetPhoto.addEventListener("click", resetCrop); el.applyPhoto.addEventListener("click", applyCrop);
 el.zoom.addEventListener("input", () => { state.crop.zoom = Number(el.zoom.value) / 100; state.crop.manualMask.fill(0); syncCropControls(); renderCrop(); }); el.tolerance.addEventListener("input", () => { state.crop.tolerance = Number(el.tolerance.value); syncCropControls(); renderCrop(); });
 el.brushSize.addEventListener("input", () => { state.crop.brushSize = Number(el.brushSize.value); syncCropControls(); }); $$('.mask-tool').forEach((button) => button.addEventListener("click", () => { state.crop.maskTool = button.dataset.maskTool; syncMaskTools(); }));
-el.prepCanvas.addEventListener("pointerdown", startCropPointer); el.prepCanvas.addEventListener("pointermove", moveCropPointer); el.prepCanvas.addEventListener("pointerup", finishCropPointer); el.prepCanvas.addEventListener("pointercancel", finishCropPointer); el.dialog.addEventListener("close", finishCropPointer);
-updateLabels(); syncEditorTools(); syncMaskTools();
+el.prepCanvas.addEventListener("pointerdown", startCropPointer); el.prepCanvas.addEventListener("pointermove", moveCropPointer); el.prepCanvas.addEventListener("pointerup", finishCropPointer); el.prepCanvas.addEventListener("pointercancel", finishCropPointer); el.dialog.addEventListener("close", () => { finishCropPointer(); if (state.entryPoint === "hero") revealStudio(); });
+restoreSettings(); updateLabels(); syncEditorTools(); syncMaskTools();
 
 if (document.modelContext?.registerTool) {
   const lifecycle = new AbortController();

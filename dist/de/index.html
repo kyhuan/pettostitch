@@ -26,6 +26,7 @@
   <meta name="twitter:image" content="https://pettostitch.cc/assets/sample-cat.jpg">
   <title>Foto in Kreuzstichmuster umwandeln | PetToStitch</title>
   <script defer data-domain="pettostitch.cc" src="https://plausible.shipsolo.io/js/script.js"></script>
+  <script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -79,7 +80,10 @@
         <ul class="trust-list" aria-label="Product highlights">
           <li>Kostenlos erstellen</li><li>Kein Konto</li><li>Foto bleibt auf deinem Gerät</li>
         </ul>
-        <button class="hero-button jump-to-studio" type="button">Foto in ein Muster verwandeln <span aria-hidden="true">→</span></button>
+        <div class="hero-actions">
+          <button class="hero-button" id="heroUploadButton" type="button">Foto auswählen <span aria-hidden="true">→</span></button>
+          <button class="hero-sample-button" id="heroSampleButton" type="button">Zuerst Maple testen</button>
+        </div>
       </div>
       <div class="sample-card" aria-label="Example pet photo">
         <img src="/assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">
