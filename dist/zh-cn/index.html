@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="免费把宠物照片转换成可编辑、可打印的十字绣图纸，支持裁剪、去背景、DMC 风格色号和格子编辑，无需注册。">
+  <meta name="theme-color" content="#123c38">
+  <link rel="canonical" href="https://pettostitch.cc/zh-cn/">
+  <link rel="alternate" hreflang="en" href="https://pettostitch.cc/">
+  <link rel="alternate" hreflang="es" href="https://pettostitch.cc/es/">
+  <link rel="alternate" hreflang="de" href="https://pettostitch.cc/de/">
+  <link rel="alternate" hreflang="zh-CN" href="https://pettostitch.cc/zh-cn/">
+  <link rel="alternate" hreflang="x-default" href="https://pettostitch.cc/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PetToStitch">
+  <meta property="og:title" content="图片转十字绣图纸工具｜PetToStitch">
+  <meta property="og:description" content="免费把宠物照片转换成可编辑、可打印的十字绣图纸。">
+  <meta property="og:url" content="https://pettostitch.cc/zh-cn/">
+  <meta property="og:image" content="https://pettostitch.cc/assets/sample-cat.jpg">
+  <meta property="og:image:width" content="1254">
+  <meta property="og:image:height" content="1254">
+  <meta property="og:image:alt" content="Ginger tabby cat used to demonstrate PetToStitch">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="图片转十字绣图纸工具｜PetToStitch">
+  <meta name="twitter:description" content="免费把宠物照片转换成可编辑、可打印的十字绣图纸。">
+  <meta name="twitter:image" content="https://pettostitch.cc/assets/sample-cat.jpg">
+  <title>图片转十字绣图纸工具｜PetToStitch</title>
+  <script defer data-domain="pettostitch.cc" src="https://plausible.shipsolo.io/js/script.js"></script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "PetToStitch",
+      "url": "https://pettostitch.cc/zh-cn/",
+      "description": "A browser-based tool that turns pet photos into editable and printable cross-stitch patterns.",
+      "applicationCategory": "GraphicsApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "offers": { "@type": "关闭er", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Pet photo to cross-stitch pattern conversion",
+        "Photo cropping and background removal",
+        "Editable stitch grid",
+        "DMC-style thread color list",
+        "Printable symbol chart"
+      ]
+    }
+  </script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23123c38'/%3E%3Cpath d='M17 16l15 15 15-15M17 48l15-15 15 15M16 17l15 15-15 15M48 17L33 32l15 15' fill='none' stroke='%23f6b65c' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="PetToStitch home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+      <span>PetToStitch</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#how">使用方法</a>
+      <a href="#questions">常见问题</a>
+      <label class="language-picker" aria-label="Language">
+        <span aria-hidden="true">◎</span>
+        <select id="languageSelector" aria-label="Language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+          <option value="zh-CN">简体中文</option>
+        </select>
+      </label>
+      <button class="quiet-button jump-to-studio" id="startButton" type="button">开始制作</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-copy">
+        <p class="eyebrow">一针一线，绣出你的爱宠</p>
+        <h1 id="page-title">把喜欢的宠物照片，变成真正想绣的十字绣图纸。</h1>
+        <p class="lede">调整图纸尺寸和线色数量，预览效果，然后下载清晰图纸。照片只在当前浏览器中处理。</p>
+        <ul class="trust-list" aria-label="Product highlights">
+          <li>免费制作</li><li>无需注册</li><li>照片不会离开设备</li>
+        </ul>
+        <button class="hero-button jump-to-studio" type="button">把照片转成十字绣图纸 <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="sample-card" aria-label="Example pet photo">
+        <img src="/assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">
+        <span class="sample-caption">原始照片 · Maple</span>
+        <div class="pattern-peek" aria-hidden="true">
+          <div class="peek-image"></div>
+          <p><strong>图纸预览</strong><span>60 × 60 · 18 种颜色</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio" id="studio" aria-labelledby="studio-title">
+      <div class="studio-head">
+        <div><p class="step-label">图纸工作台</p><h2 id="studio-title">制作你的第一张图纸</h2></div>
+        <p id="privacyNote">无需上传，所有处理均在本地完成。</p>
+      </div>
+
+      <div class="studio-grid">
+        <aside class="controls" aria-label="图纸尺寸 settings">
+          <div class="upload-box" id="dropZone">
+            <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+            <div class="upload-icon" aria-hidden="true">↥</div>
+            <strong>把宠物照片拖到这里</strong>
+            <span>支持 JPG、PNG、WebP · 最大 15 MB</span>
+            <button class="primary-button" id="uploadButton" type="button">选择照片</button>
+            <button class="text-button" id="sampleButton" type="button">或使用 Maple 示例</button>
+          </div>
+
+          <button class="photo-tools-button" id="photoToolsButton" type="button" disabled>
+            <span aria-hidden="true">⌗</span>
+            <span><strong>裁剪与去背景</strong><small>突出宠物主体，移除杂乱背景</small></span>
+          </button>
+
+          <div class="settings" id="settingsPanel">
+            <div class="field-group">
+              <div class="field-title"><label for="gridWidth">图纸宽度</label><output id="gridWidthOut">60 stitches</output></div>
+              <input id="gridWidth" type="range" min="30" max="100" value="60" step="5">
+              <div class="range-labels"><span>更小</span><span>更精细</span></div>
+            </div>
+            <div class="field-group">
+              <div class="field-title"><label for="colorCount">绣线颜色</label><output id="colorCountOut">18 colors</output></div>
+              <input id="colorCount" type="range" min="6" max="30" value="18" step="2">
+              <div class="range-labels"><span>更简单</span><span>更丰富</span></div>
+            </div>
+            <div class="field-group compact">
+              <label for="fabricCount">绣布规格</label>
+              <select id="fabricCount"><option value="11">11 count</option><option value="14" selected>14 count</option><option value="16">16 count</option><option value="18">18 count</option></select>
+            </div>
+            <button class="regenerate-button" id="regenerateButton" type="button">更新图纸</button>
+          </div>
+        </aside>
+
+        <div class="workspace" aria-live="polite">
+          <div class="view-tabs" role="tablist" aria-label="图纸尺寸 views">
+            <button class="tab active" role="tab" aria-selected="true" data-view="stitches">十字绣预览</button>
+            <button class="tab" role="tab" aria-selected="false" data-view="photo">处理后照片</button>
+            <button class="tab" role="tab" aria-selected="false" data-view="symbols">符号图纸</button>
+          </div>
+          <div class="editor-toolbar" id="editorToolbar" hidden aria-label="Grid editor tools">
+            <div class="tool-group" role="group" aria-label="Drawing tool">
+              <button class="editor-tool active" type="button" data-tool="paint" aria-pressed="true">✎ 涂色</button>
+              <button class="editor-tool" type="button" data-tool="erase" aria-pressed="false">⌫ 擦除</button>
+            </div>
+            <div class="selected-thread" id="selectedThread"><span></span><strong>选择绣线</strong></div>
+            <div class="tool-group history-tools" role="group" aria-label="Edit history">
+              <button id="undoButton" type="button" disabled aria-label="Undo">↶</button>
+              <button id="redoButton" type="button" disabled aria-label="Redo">↷</button>
+            </div>
+          </div>
+          <p class="editor-hint" id="editorHint" hidden>选择绣线 color, then paint or erase directly on the grid.</p>
+          <div class="canvas-frame" id="canvasFrame">
+            <canvas id="patternCanvas" aria-label="Generated cross-stitch pattern preview"></canvas>
+            <div class="empty-state" id="emptyState">
+              <span class="stitched-paw" aria-hidden="true">× ×<br> × </span>
+              <strong>图纸会显示在这里</strong>
+              <p>建议使用清晰、光线均匀、宠物主体占比较大的照片。</p>
+            </div>
+            <div class="busy" id="busy" hidden><span></span>正在生成图纸…</div>
+          </div>
+          <div class="result-bar" id="resultBar" hidden>
+            <div><span>图纸尺寸</span><strong id="patternSize">—</strong></div>
+            <div><span>成品尺寸</span><strong id="finishedSize">—</strong></div>
+            <div><span>总针数</span><strong id="stitchCount">—</strong></div>
+            <div><span>使用颜色</span><strong id="colorsUsed">—</strong></div>
+          </div>
+          <div class="actions" id="actions" hidden>
+            <button class="secondary-button" id="downloadButton" type="button">下载图纸</button>
+            <button class="primary-button" id="printButton" type="button">打印图纸</button>
+          </div>
+        </div>
+
+        <aside class="palette-panel" id="palettePanel" aria-label="绣线色板">
+          <div class="panel-title"><div><p class="step-label">材料</p><h3>绣线色板</h3></div><span id="paletteTotal">0 colors</span></div>
+          <div class="palette-list" id="paletteList"><p class="palette-empty">生成图纸后可查看绣线颜色和对应针数。</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="process" id="how" aria-labelledby="how-title">
+      <p class="eyebrow">轻松开始</p>
+      <h2 id="how-title">从相册到第一针</h2>
+      <div class="process-grid">
+        <article><span>01</span><h3>选择清晰照片</h3><p>主体突出、背景简单的近景照片，更能保留宠物最有辨识度的特征。</p></article>
+        <article><span>02</span><h3>调整图纸</h3><p>调整针数和颜色数量，在细节与制作难度之间取得平衡。</p></article>
+        <article><span>03</span><h3>导出图纸</h3><p>下载彩色图纸，或打印带有绣线清单的符号图纸。</p></article>
+      </div>
+    </section>
+
+    <section class="faq" id="questions" aria-labelledby="faq-title">
+      <div><p class="eyebrow">开始之前</p><h2 id="faq-title">你可能想了解这些</h2></div>
+      <div class="faq-list">
+        <details><summary>照片会上传到服务器吗？</summary><p>不会。图片完全在浏览器中处理，关闭页面后当前工作图片会被清除。</p></details>
+        <details><summary>绣线颜色准确吗？</summary><p>图纸使用实用的 DMC 风格色号。不同屏幕存在色差，大量购买前建议先对照实体绣线。</p></details>
+        <details><summary>什么样的照片效果最好？</summary><p>选择清晰、光线均匀、眼睛可见且主体占比较大的照片。复杂背景会增加针数，但通常无助于突出宠物。</p></details>
+        <details><summary>现在收费吗？</summary><p>No. 图纸尺寸 creation and export are free during the prototype stage while we improve the quality with real stitchers.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="photo-dialog" id="photoDialog" aria-labelledby="photoDialogTitle">
+    <div class="dialog-shell">
+      <div class="dialog-head"><div><p class="step-label">照片处理</p><h2 id="photoDialogTitle">调整宠物位置</h2></div><button class="dialog-close" id="closePhotoDialog" type="button" aria-label="Close">×</button></div>
+      <div class="photo-prep-grid">
+        <div class="prep-canvas-wrap" id="prepCanvasWrap"><canvas id="prepCanvas" aria-label="Crop and background removal preview"></canvas><p>拖动照片调整位置，并使用画笔细化背景。</p></div>
+        <div class="prep-controls">
+          <div class="field-group"><div class="field-title"><label for="crop缩放">缩放</label><output id="crop缩放Out">100%</output></div><input id="crop缩放" type="range" min="100" max="260" value="100"></div>
+          <div class="field-group"><div class="field-title"><label for="bgTolerance">背景移除</label><output id="bgToleranceOut">关闭</output></div><input id="bgTolerance" type="range" min="0" max="90" value="0"><p class="field-help">逐步提高强度，它会移除与照片边缘相连的相似颜色。</p></div>
+          <div class="brush-section"><span>细化蒙版</span><div class="brush-tools" role="group" aria-label="Background brush"><button type="button" class="mask-tool active" data-mask-tool="move" aria-pressed="true">移动</button><button type="button" class="mask-tool" data-mask-tool="erase" aria-pressed="false">擦除</button><button type="button" class="mask-tool" data-mask-tool="restore" aria-pressed="false">恢复</button></div><div class="field-title brush-size-row"><label for="brushSize">画笔大小</label><output id="brushSizeOut">32 px</output></div><input id="brushSize" type="range" min="8" max="80" value="32"></div>
+          <div class="prep-note"><strong>提示</strong><p>Simple, evenly lit backgrounds work best. 恢复 around whiskers, ears, and fur if the automatic removal goes too far.</p></div>
+        </div>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" id="resetPhotoButton" type="button">重置</button><div><button class="secondary-button" id="cancelPhotoButton" type="button">取消</button><button class="primary-button" id="applyPhotoButton" type="button">使用这张照片</button></div></div>
+    </div>
+  </dialog>
+
+  <footer><a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span><span>PetToStitch</span></a><p>为陪伴在身边的宠物而做。</p><p>© 2026 PetToStitch · pettostitch.cc</p></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/i18n.js"></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>

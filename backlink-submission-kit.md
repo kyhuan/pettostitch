@@ -40,7 +40,7 @@ I built PetToStitch to make custom pet portraits easier to start. Most photo con
 
 ## Priority targets
 
-1. CuriousCrafters — submit as a craft tool or creative resource.
+1. CuriousCrafters — submitted successfully on 2026-09-26; pending editorial review under Pattern Designers.
 2. Recreation and Hobby Directory — submit to Crafts / Cross Stitch.
 3. LaunchFree — submit as a free online creative tool.
 4. Product Hunt — prepare a maker launch after the account is eligible.

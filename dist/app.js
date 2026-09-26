@@ -19,6 +19,8 @@ const DMC = [
 const symbols = ["●", "×", "■", "◆", "▲", "+", "○", "□", "◇", "△", "/", "\\", "=", "#", "★", "✦", "⊙", "⌁", "▣", "◈", "▴", "▾", "◐", "◑", "⊕", "⊗", "▧", "▨", "⌂", "♢"];
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+const t = window.pettoT || ((text) => text);
+const format = window.pettoFormat || ((key, value) => key === "stitches" ? `${value} stitches` : `${value} colors`);
 const el = {
   file: $("#fileInput"), upload: $("#uploadButton"), sample: $("#sampleButton"), drop: $("#dropZone"), photoTools: $("#photoToolsButton"),
   settings: $("#settingsPanel"), width: $("#gridWidth"), widthOut: $("#gridWidthOut"), colors: $("#colorCount"), colorsOut: $("#colorCountOut"),
@@ -39,7 +41,7 @@ const state = {
 
 function toast(message) { el.toast.textContent = message; el.toast.classList.add("show"); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.toast.classList.remove("show"), 2200); }
 function setBusy(on) { state.processing = on; el.busy.hidden = !on; el.regen.disabled = on; }
-function updateLabels() { el.widthOut.value = `${el.width.value} stitches`; el.colorsOut.value = `${el.colors.value} colors`; }
+function updateLabels() { el.widthOut.value = format("stitches", el.width.value); el.colorsOut.value = format("colors", el.colors.value); }
 
 function loadImage(src, name = "pattern") {
   return new Promise((resolve, reject) => {
@@ -54,14 +56,14 @@ function loadImage(src, name = "pattern") {
   });
 }
 
-async function useSample() { await loadImage("./assets/sample-cat.jpg", "maple-cat"); await generate(); }
+async function useSample() { await loadImage("/assets/sample-cat.jpg", "maple-cat"); await generate(); }
 async function useFile(file) {
   if (!file) return;
-  if (file.size > 15 * 1024 * 1024) return toast("Please choose an image under 15 MB.");
-  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return toast("Please choose a JPG, PNG, or WebP image.");
+  if (file.size > 15 * 1024 * 1024) return toast(t("Please choose an image under 15 MB."));
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return toast(t("Please choose a JPG, PNG, or WebP image."));
   const url = URL.createObjectURL(file);
   try { await loadImage(url, file.name); await generate(); openPhotoDialog(); }
-  catch { toast("We couldn’t read that image."); }
+  catch { toast(t("We couldn’t read that image.")); }
   finally { URL.revokeObjectURL(url); }
 }
 
@@ -115,7 +117,7 @@ async function generate() {
     cells = cleanGrid(cells, width, height); state.grid = { w: width, h: height, cells }; state.allPalette = palette; state.undo = []; state.redo = [];
     recalculatePattern(); state.selectedColor = state.palette[0]?.index ?? 0; syncSelectedThread(); renderPalette();
     el.empty.hidden = true; el.result.hidden = false; el.actions.hidden = false; el.editor.hidden = false; el.editorHint.hidden = false; el.frame.classList.add("editing");
-  } catch (error) { console.error(error); toast("Pattern generation failed. Try a smaller photo."); }
+  } catch (error) { console.error(error); toast(t("Pattern generation failed. Try a smaller photo.")); }
   finally { setBusy(false); }
 }
 
@@ -159,7 +161,7 @@ function updateStats() {
 }
 
 function renderPalette() {
-  el.paletteTotal.textContent = `${state.palette.length} colors`;
+  el.paletteTotal.textContent = format("paletteColors", state.palette.length);
   el.palette.innerHTML = state.palette.map((color) => `<button class="swatch-row ${state.selectedColor === color.index ? "selected" : ""}" type="button" data-color-index="${color.index}" aria-label="Paint with ${color.code} ${color.name}"><span class="swatch" style="background:${color.hex}"></span><span class="swatch-info"><strong>${symbols[color.index % symbols.length]} · ${color.code}</strong><span>${color.name}</span></span><span class="swatch-count">${color.count.toLocaleString()}</span></button>`).join("");
   $$("[data-color-index]").forEach((button) => button.addEventListener("click", () => selectThread(Number(button.dataset.colorIndex))));
 }
@@ -167,7 +169,7 @@ function renderPalette() {
 function selectThread(index) { state.selectedColor = index; state.editTool = "paint"; syncEditorTools(); syncSelectedThread(); renderPalette(); }
 function syncSelectedThread() {
   const color = state.allPalette[state.selectedColor], swatch = el.selectedThread.querySelector("span"), label = el.selectedThread.querySelector("strong");
-  if (!color) { swatch.removeAttribute("style"); label.textContent = "Select a thread"; return; } swatch.style.background = color.hex; label.textContent = `${color.code} · ${color.name}`;
+  if (!color) { swatch.removeAttribute("style"); label.textContent = t("Select a thread"); return; } swatch.style.background = color.hex; label.textContent = `${color.code} · ${color.name}`;
 }
 function syncEditorTools() { $$(".editor-tool").forEach((button) => { const active = button.dataset.tool === state.editTool; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); }
 function syncHistoryButtons() { el.undo.disabled = !state.undo.length; el.redo.disabled = !state.redo.length; }
@@ -198,7 +200,7 @@ function download() {
   link.href = el.canvas.toDataURL("image/png");
   link.click();
   if (previousView !== "stitches") setView(previousView);
-  toast("Color stitch chart downloaded.");
+  toast(t("Color stitch chart downloaded."));
 }
 function setView(view) { state.view = view; $$(".tab").forEach((tab) => { const active = tab.dataset.view === view; tab.classList.toggle("active", active); tab.setAttribute("aria-selected", String(active)); }); render(); }
 
@@ -207,7 +209,7 @@ function ensureCropMask(reset = false) { const size = 560; if (reset || !state.c
 function resetCrop() { state.crop = { zoom: 1, offsetX: 0, offsetY: 0, tolerance: 0, maskTool: "move", brushSize: 32, manualMask: new Int8Array(560 * 560), rendered: null }; syncCropControls(); syncMaskTools(); renderCrop(); }
 function syncCropControls() {
   el.zoom.value = String(Math.round(state.crop.zoom * 100)); el.tolerance.value = String(state.crop.tolerance); el.brushSize.value = String(state.crop.brushSize);
-  el.zoomOut.value = `${Math.round(state.crop.zoom * 100)}%`; el.toleranceOut.value = state.crop.tolerance ? `${state.crop.tolerance}` : "Off"; el.brushSizeOut.value = `${state.crop.brushSize} px`;
+  el.zoomOut.value = `${Math.round(state.crop.zoom * 100)}%`; el.toleranceOut.value = state.crop.tolerance ? `${state.crop.tolerance}` : t("Off"); el.brushSizeOut.value = `${state.crop.brushSize} px`;
 }
 function syncMaskTools() { $$(".mask-tool").forEach((button) => { const active = button.dataset.maskTool === state.crop.maskTool; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); el.prepCanvas.classList.toggle("brush-active", state.crop.maskTool !== "move"); }
 
@@ -252,7 +254,7 @@ function moveCropPointer(event) {
 function finishCropPointer() { state.cropPointer = null; }
 async function applyCrop() {
   const image = new Image(), loaded = new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; }); image.src = el.prepCanvas.toDataURL("image/png"); await loaded;
-  state.image = image; el.dialog.close(); await generate(); toast(state.crop.tolerance ? "Crop and background applied." : "Crop applied.");
+  state.image = image; el.dialog.close(); await generate(); toast(t(state.crop.tolerance ? "Crop and background applied." : "Crop applied."));
 }
 
 el.upload.addEventListener("click", () => el.file.click()); el.file.addEventListener("change", (event) => useFile(event.target.files[0])); el.sample.addEventListener("click", useSample); el.photoTools.addEventListener("click", openPhotoDialog);
@@ -273,6 +275,6 @@ if (document.modelContext?.registerTool) {
   Promise.resolve(document.modelContext.registerTool({
     name: "configure_pet_cross_stitch_pattern", title: "Configure pet cross-stitch pattern", description: "Load the built-in pet photo and set the visible cross-stitch pattern width, color count, and fabric count.",
     inputSchema: { type: "object", properties: { width: { type: "integer", minimum: 30, maximum: 100 }, colors: { type: "integer", minimum: 6, maximum: 30 }, fabricCount: { type: "integer", enum: [11, 14, 16, 18] } }, additionalProperties: false }, annotations: { readOnlyHint: false, untrustedContentHint: false },
-    async execute(input) { if (input.width !== undefined) el.width.value = Math.round(input.width / 5) * 5; if (input.colors !== undefined) el.colors.value = Math.round(input.colors / 2) * 2; if (input.fabricCount !== undefined) el.fabric.value = String(input.fabricCount); updateLabels(); if (!state.image) await loadImage("./assets/sample-cat.jpg", "maple-cat"); await generate(); return { status: "ready", width: Number(el.width.value), height: state.grid.h, colors: state.palette.length, fabricCount: Number(el.fabric.value) }; }
+    async execute(input) { if (input.width !== undefined) el.width.value = Math.round(input.width / 5) * 5; if (input.colors !== undefined) el.colors.value = Math.round(input.colors / 2) * 2; if (input.fabricCount !== undefined) el.fabric.value = String(input.fabricCount); updateLabels(); if (!state.image) await loadImage("/assets/sample-cat.jpg", "maple-cat"); await generate(); return { status: "ready", width: Number(el.width.value), height: state.grid.h, colors: state.palette.length, fabricCount: Number(el.fabric.value) }; }
   }, { signal: lifecycle.signal })).catch(() => {});
 }

@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Verwandle ein Haustierfoto kostenlos in eine bearbeitbare Kreuzstichvorlage mit DMC-ähnlichen Garnfarben. Privat und ohne Anmeldung.">
+  <meta name="theme-color" content="#123c38">
+  <link rel="canonical" href="https://pettostitch.cc/de/">
+  <link rel="alternate" hreflang="en" href="https://pettostitch.cc/">
+  <link rel="alternate" hreflang="es" href="https://pettostitch.cc/es/">
+  <link rel="alternate" hreflang="de" href="https://pettostitch.cc/de/">
+  <link rel="alternate" hreflang="zh-CN" href="https://pettostitch.cc/zh-cn/">
+  <link rel="alternate" hreflang="x-default" href="https://pettostitch.cc/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PetToStitch">
+  <meta property="og:title" content="Foto in Kreuzstichmuster umwandeln | PetToStitch">
+  <meta property="og:description" content="Erstelle kostenlos eine bearbeitbare und druckbare Kreuzstichvorlage aus deinem Haustierfoto.">
+  <meta property="og:url" content="https://pettostitch.cc/de/">
+  <meta property="og:image" content="https://pettostitch.cc/assets/sample-cat.jpg">
+  <meta property="og:image:width" content="1254">
+  <meta property="og:image:height" content="1254">
+  <meta property="og:image:alt" content="Ginger tabby cat used to demonstrate PetToStitch">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Foto in Kreuzstichmuster umwandeln | PetToStitch">
+  <meta name="twitter:description" content="Erstelle kostenlos eine bearbeitbare und druckbare Kreuzstichvorlage aus deinem Haustierfoto.">
+  <meta name="twitter:image" content="https://pettostitch.cc/assets/sample-cat.jpg">
+  <title>Foto in Kreuzstichmuster umwandeln | PetToStitch</title>
+  <script defer data-domain="pettostitch.cc" src="https://plausible.shipsolo.io/js/script.js"></script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "PetToStitch",
+      "url": "https://pettostitch.cc/de/",
+      "description": "A browser-based tool that turns pet photos into editable and printable cross-stitch patterns.",
+      "applicationCategory": "GraphicsApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "offers": { "@type": "Auser", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Pet photo to cross-stitch pattern conversion",
+        "Photo cropping and background removal",
+        "Editable stitch grid",
+        "DMC-style thread color list",
+        "Printable symbol chart"
+      ]
+    }
+  </script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23123c38'/%3E%3Cpath d='M17 16l15 15 15-15M17 48l15-15 15 15M16 17l15 15-15 15M48 17L33 32l15 15' fill='none' stroke='%23f6b65c' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="PetToStitch home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+      <span>PetToStitch</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#how">So funktioniert’s</a>
+      <a href="#questions">FAQ</a>
+      <label class="language-picker" aria-label="Language">
+        <span aria-hidden="true">◎</span>
+        <select id="languageSelector" aria-label="Language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+          <option value="zh-CN">简体中文</option>
+        </select>
+      </label>
+      <button class="quiet-button jump-to-studio" id="startButton" type="button">Jetzt starten</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-copy">
+        <p class="eyebrow">Dein Haustier, Stich für Stich</p>
+        <h1 id="page-title">Verwandle dein Lieblingsfoto in ein Stickmuster, das du gern sticken wirst.</h1>
+        <p class="lede">Wähle Größe und Farbanzahl, prüfe das Ergebnis und lade eine klare Vorlage herunter. Dein Foto wird in diesem Browser verarbeitet.</p>
+        <ul class="trust-list" aria-label="Product highlights">
+          <li>Kostenlos erstellen</li><li>Kein Konto</li><li>Foto bleibt auf deinem Gerät</li>
+        </ul>
+        <button class="hero-button jump-to-studio" type="button">Foto in ein Muster verwandeln <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="sample-card" aria-label="Example pet photo">
+        <img src="/assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">
+        <span class="sample-caption">Originalfoto · Maple</span>
+        <div class="pattern-peek" aria-hidden="true">
+          <div class="peek-image"></div>
+          <p><strong>Stickfertig</strong><span>60 × 60 · 18 Farben</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio" id="studio" aria-labelledby="studio-title">
+      <div class="studio-head">
+        <div><p class="step-label">Musterstudio</p><h2 id="studio-title">Erstelle deine erste Vorlage</h2></div>
+        <p id="privacyNote">Es wird nichts hochgeladen. Die Verarbeitung erfolgt lokal.</p>
+      </div>
+
+      <div class="studio-grid">
+        <aside class="controls" aria-label="Muster settings">
+          <div class="upload-box" id="dropZone">
+            <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+            <div class="upload-icon" aria-hidden="true">↥</div>
+            <strong>Haustierfoto hier ablegen</strong>
+            <span>JPG, PNG oder WebP · bis 15 MB</span>
+            <button class="primary-button" id="uploadButton" type="button">Foto auswählen</button>
+            <button class="text-button" id="sampleButton" type="button">oder Maple ausprobieren</button>
+          </div>
+
+          <button class="photo-tools-button" id="photoToolsButton" type="button" disabled>
+            <span aria-hidden="true">⌗</span>
+            <span><strong>Zuschneiden & Hintergrund entfernen</strong><small>Gesicht ausrichten und Ablenkungen entfernen</small></span>
+          </button>
+
+          <div class="settings" id="settingsPanel">
+            <div class="field-group">
+              <div class="field-title"><label for="gridWidth">Musterbreite</label><output id="gridWidthOut">60 stitches</output></div>
+              <input id="gridWidth" type="range" min="30" max="100" value="60" step="5">
+              <div class="range-labels"><span>Klein</span><span>Detailliert</span></div>
+            </div>
+            <div class="field-group">
+              <div class="field-title"><label for="colorCount">Garnfarben</label><output id="colorCountOut">18 colors</output></div>
+              <input id="colorCount" type="range" min="6" max="30" value="18" step="2">
+              <div class="range-labels"><span>Einfacher</span><span>Farbreicher</span></div>
+            </div>
+            <div class="field-group compact">
+              <label for="fabricCount">Stoffdichte</label>
+              <select id="fabricCount"><option value="11">11 count</option><option value="14" selected>14 count</option><option value="16">16 count</option><option value="18">18 count</option></select>
+            </div>
+            <button class="regenerate-button" id="regenerateButton" type="button">Muster aktualisieren</button>
+          </div>
+        </aside>
+
+        <div class="workspace" aria-live="polite">
+          <div class="view-tabs" role="tablist" aria-label="Muster views">
+            <button class="tab active" role="tab" aria-selected="true" data-view="stitches">Stichvorschau</button>
+            <button class="tab" role="tab" aria-selected="false" data-view="photo">Bearbeitetes Foto</button>
+            <button class="tab" role="tab" aria-selected="false" data-view="symbols">Symbolvorlage</button>
+          </div>
+          <div class="editor-toolbar" id="editorToolbar" hidden aria-label="Grid editor tools">
+            <div class="tool-group" role="group" aria-label="Drawing tool">
+              <button class="editor-tool active" type="button" data-tool="paint" aria-pressed="true">✎ Malen</button>
+              <button class="editor-tool" type="button" data-tool="erase" aria-pressed="false">⌫ Löschen</button>
+            </div>
+            <div class="selected-thread" id="selectedThread"><span></span><strong>Garn auswählen</strong></div>
+            <div class="tool-group history-tools" role="group" aria-label="Edit history">
+              <button id="undoButton" type="button" disabled aria-label="Undo">↶</button>
+              <button id="redoButton" type="button" disabled aria-label="Redo">↷</button>
+            </div>
+          </div>
+          <p class="editor-hint" id="editorHint" hidden>Garn auswählen color, then paint or erase directly on the grid.</p>
+          <div class="canvas-frame" id="canvasFrame">
+            <canvas id="patternCanvas" aria-label="Generated cross-stitch pattern preview"></canvas>
+            <div class="empty-state" id="emptyState">
+              <span class="stitched-paw" aria-hidden="true">× ×<br> × </span>
+              <strong>Dein Muster erscheint hier</strong>
+              <p>Verwende ein nahes, gut beleuchtetes Foto, auf dem dein Haustier den größten Teil des Bildes ausfüllt.</p>
+            </div>
+            <div class="busy" id="busy" hidden><span></span>Muster wird erstellt…</div>
+          </div>
+          <div class="result-bar" id="resultBar" hidden>
+            <div><span>Muster</span><strong id="patternSize">—</strong></div>
+            <div><span>Endgröße</span><strong id="finishedSize">—</strong></div>
+            <div><span>Kreuzstiche</span><strong id="stitchCount">—</strong></div>
+            <div><span>Verwendete Farben</span><strong id="colorsUsed">—</strong></div>
+          </div>
+          <div class="actions" id="actions" hidden>
+            <button class="secondary-button" id="downloadButton" type="button">Vorlage herunterladen</button>
+            <button class="primary-button" id="printButton" type="button">Muster drucken</button>
+          </div>
+        </div>
+
+        <aside class="palette-panel" id="palettePanel" aria-label="Garnpalette">
+          <div class="panel-title"><div><p class="step-label">Material</p><h3>Garnpalette</h3></div><span id="paletteTotal">0 colors</span></div>
+          <div class="palette-list" id="paletteList"><p class="palette-empty">Erstelle ein Muster, um Garnfarben und Stichzahlen zu sehen.</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="process" id="how" aria-labelledby="how-title">
+      <p class="eyebrow">Ein einfacher Einstieg</p>
+      <h2 id="how-title">Vom Foto zum ersten Stich</h2>
+      <div class="process-grid">
+        <article><span>01</span><h3>Klares Foto auswählen</h3><p>Nahaufnahmen mit schlichtem Hintergrund bewahren die typischen Merkmale deines Haustiers.</p></article>
+        <article><span>02</span><h3>Projekt gestalten</h3><p>Passe Breite und Farbanzahl an, bis Detailgrad und Aufwand stimmen.</p></article>
+        <article><span>03</span><h3>Vorlage mitnehmen</h3><p>Lade eine Farbvorlage herunter oder drucke eine Symbolversion mit Garnliste.</p></article>
+      </div>
+    </section>
+
+    <section class="faq" id="questions" aria-labelledby="faq-title">
+      <div><p class="eyebrow">Bevor du beginnst</p><h2 id="faq-title">Einige hilfreiche Antworten</h2></div>
+      <div class="faq-list">
+        <details><summary>Verlässt mein Foto mein Gerät?</summary><p>Nein. Das Bild wird vollständig in deinem Browser verarbeitet. Beim Schließen des Tabs wird das Arbeitsbild gelöscht.</p></details>
+        <details><summary>Sind die Garnfarben exakt?</summary><p>Die Vorlage nutzt eine praktische Palette mit bekannten DMC-ähnlichen Referenzen. Bildschirmfarben können abweichen; vergleiche das Garn vor einem größeren Kauf.</p></details>
+        <details><summary>Welches Foto eignet sich am besten?</summary><p>Nutze ein scharfes, gleichmäßig beleuchtetes Bild mit sichtbaren Augen. Unruhige Hintergründe erhöhen die Stichzahl, ohne das Porträt zu verbessern.</p></details>
+        <details><summary>Ist das schon die kostenpflichtige Version?</summary><p>No. Muster creation and export are free during the prototype stage while we improve the quality with real stitchers.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="photo-dialog" id="photoDialog" aria-labelledby="photoDialogTitle">
+    <div class="dialog-shell">
+      <div class="dialog-head"><div><p class="step-label">Foto vorbereiten</p><h2 id="photoDialogTitle">Haustier ausrichten</h2></div><button class="dialog-close" id="closePhotoDialog" type="button" aria-label="Close">×</button></div>
+      <div class="photo-prep-grid">
+        <div class="prep-canvas-wrap" id="prepCanvasWrap"><canvas id="prepCanvas" aria-label="Crop and background removal preview"></canvas><p>Ziehe das Foto zum Ausrichten. Verfeinere den Hintergrund mit den Pinseln.</p></div>
+        <div class="prep-controls">
+          <div class="field-group"><div class="field-title"><label for="cropZoom">Zoom</label><output id="cropZoomOut">100%</output></div><input id="cropZoom" type="range" min="100" max="260" value="100"></div>
+          <div class="field-group"><div class="field-title"><label for="bgTolerance">Hintergrund entfernen</label><output id="bgToleranceOut">Aus</output></div><input id="bgTolerance" type="range" min="0" max="90" value="0"><p class="field-help">Langsam erhöhen. Ähnliche Farben am Bildrand werden entfernt.</p></div>
+          <div class="brush-section"><span>Maske verfeinern</span><div class="brush-tools" role="group" aria-label="Background brush"><button type="button" class="mask-tool active" data-mask-tool="move" aria-pressed="true">Verschieben</button><button type="button" class="mask-tool" data-mask-tool="erase" aria-pressed="false">Löschen</button><button type="button" class="mask-tool" data-mask-tool="restore" aria-pressed="false">Wiederherstellen</button></div><div class="field-title brush-size-row"><label for="brushSize">Pinselgröße</label><output id="brushSizeOut">32 px</output></div><input id="brushSize" type="range" min="8" max="80" value="32"></div>
+          <div class="prep-note"><strong>Tipp</strong><p>Simple, evenly lit backgrounds work best. Wiederherstellen around whiskers, ears, and fur if the automatic removal goes too far.</p></div>
+        </div>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" id="resetPhotoButton" type="button">Zurücksetzen</button><div><button class="secondary-button" id="cancelPhotoButton" type="button">Abbrechen</button><button class="primary-button" id="applyPhotoButton" type="button">Dieses Foto verwenden</button></div></div>
+    </div>
+  </dialog>
+
+  <footer><a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span><span>PetToStitch</span></a><p>Für die Haustiere, die uns nahestehen.</p><p>© 2026 PetToStitch · pettostitch.cc</p></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/i18n.js"></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>

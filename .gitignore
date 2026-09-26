@@ -1,6 +1,8 @@
 .edge-smoke/
 .edge-layout/
+.edge-locale-*/
 preview-*.png
 mobile-*.png
 desktop-*.png
+locale-*.png
 *.tar.gz

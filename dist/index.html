@@ -6,6 +6,11 @@
   <meta name="description" content="Turn a pet photo into a clear, editable cross-stitch pattern with real thread colors and a printable chart.">
   <meta name="theme-color" content="#123c38">
   <link rel="canonical" href="https://pettostitch.cc/">
+  <link rel="alternate" hreflang="en" href="https://pettostitch.cc/">
+  <link rel="alternate" hreflang="es" href="https://pettostitch.cc/es/">
+  <link rel="alternate" hreflang="de" href="https://pettostitch.cc/de/">
+  <link rel="alternate" hreflang="zh-CN" href="https://pettostitch.cc/zh-cn/">
+  <link rel="alternate" hreflang="x-default" href="https://pettostitch.cc/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PetToStitch">
   <meta property="og:title" content="Pet photo to cross-stitch pattern — PetToStitch">
@@ -41,7 +46,7 @@
     }
   </script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23123c38'/%3E%3Cpath d='M17 16l15 15 15-15M17 48l15-15 15 15M16 17l15 15-15 15M48 17L33 32l15 15' fill='none' stroke='%23f6b65c' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="site-header">
@@ -52,6 +57,15 @@
     <nav aria-label="Main navigation">
       <a href="#how">How it works</a>
       <a href="#questions">FAQ</a>
+      <label class="language-picker" aria-label="Language">
+        <span aria-hidden="true">◎</span>
+        <select id="languageSelector" aria-label="Language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+          <option value="zh-CN">简体中文</option>
+        </select>
+      </label>
       <button class="quiet-button jump-to-studio" id="startButton" type="button">Start creating</button>
     </nav>
   </header>
@@ -68,7 +82,7 @@
         <button class="hero-button jump-to-studio" type="button">Turn your photo into a pattern <span aria-hidden="true">→</span></button>
       </div>
       <div class="sample-card" aria-label="Example pet photo">
-        <img src="./assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">
+        <img src="/assets/sample-cat.jpg" width="1254" height="1254" decoding="async" fetchpriority="high" alt="Ginger tabby cat used as the sample photo">
         <span class="sample-caption">Original photo · Maple</span>
         <div class="pattern-peek" aria-hidden="true">
           <div class="peek-image"></div>
@@ -203,6 +217,7 @@
 
   <footer><a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span><span>PetToStitch</span></a><p>Made for the pets we keep close.</p><p>© 2026 PetToStitch · pettostitch.cc</p></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js" defer></script>
+  <script src="/i18n.js"></script>
+  <script src="/app.js" defer></script>
 </body>
 </html>
