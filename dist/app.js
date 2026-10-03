@@ -26,11 +26,12 @@ const el = {
   file: $("#fileInput"), upload: $("#uploadButton"), sample: $("#sampleButton"), drop: $("#dropZone"), photoTools: $("#photoToolsButton"),
   heroUpload: $("#heroUploadButton"), heroSample: $("#heroSampleButton"),
   settings: $("#settingsPanel"), width: $("#gridWidth"), widthOut: $("#gridWidthOut"), colors: $("#colorCount"), colorsOut: $("#colorCountOut"),
+  tuning: $(".advanced-settings"), contrast: $("#toneLevel"), contrastOut: $("#toneLevelOut"), saturation: $("#colorLevel"), saturationOut: $("#colorLevelOut"), dithering: $("#useDithering"),
   fabric: $("#fabricCount"), regen: $("#regenerateButton"), canvas: $("#patternCanvas"), frame: $("#canvasFrame"), empty: $("#emptyState"), busy: $("#busy"),
   result: $("#resultBar"), actions: $("#actions"), size: $("#patternSize"), finished: $("#finishedSize"), stitches: $("#stitchCount"), used: $("#colorsUsed"),
   palette: $("#paletteList"), paletteTotal: $("#paletteTotal"), download: $("#downloadButton"), print: $("#printButton"), toast: $("#toast"),
   editor: $("#editorToolbar"), editorHint: $("#editorHint"), selectedThread: $("#selectedThread"), undo: $("#undoButton"), redo: $("#redoButton"), dialog: $("#photoDialog"),
-  prepCanvas: $("#prepCanvas"), zoom: $("#cropZoom"), zoomOut: $("#cropZoomOut"), tolerance: $("#bgTolerance"), toleranceOut: $("#bgToleranceOut"),
+  prepCanvas: $("#prepCanvas"), zoom: $("#cropScale"), zoomOut: $("#cropScaleOut"), tolerance: $("#bgTolerance"), toleranceOut: $("#bgToleranceOut"),
   brushSize: $("#brushSize"), brushSizeOut: $("#brushSizeOut"), closeDialog: $("#closePhotoDialog"), cancelDialog: $("#cancelPhotoButton"),
   resetPhoto: $("#resetPhotoButton"), applyPhoto: $("#applyPhotoButton")
 };
@@ -44,15 +45,19 @@ const state = {
 function track(name, props = {}) { if (typeof window.plausible === "function") window.plausible(name, { props }); }
 function toast(message) { el.toast.textContent = message; el.toast.classList.add("show"); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.toast.classList.remove("show"), 2200); }
 function setBusy(on) { state.processing = on; el.busy.hidden = !on; el.regen.disabled = on; }
-function updateLabels() { el.widthOut.value = format("stitches", el.width.value); el.colorsOut.value = format("colors", el.colors.value); }
+function updateLabels() { el.widthOut.value = format("stitches", el.width.value); el.colorsOut.value = format("colors", el.colors.value); el.contrastOut.value = `${el.contrast.value}%`; el.saturationOut.value = `${el.saturation.value}%`; }
 function revealStudio() { $("#studio").scrollIntoView({ behavior: "smooth", block: "start" }); }
-function saveSettings() { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ width: el.width.value, colors: el.colors.value, fabric: el.fabric.value })); } catch {} }
+function saveSettings() { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ width: el.width.value, colors: el.colors.value, fabric: el.fabric.value, contrast: el.contrast.value, saturation: el.saturation.value, dithering: el.dithering.checked })); } catch {} }
 function restoreSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY));
     if (saved?.width) el.width.value = saved.width;
     if (saved?.colors) el.colors.value = saved.colors;
     if (saved?.fabric) el.fabric.value = saved.fabric;
+    if (saved?.contrast) el.contrast.value = saved.contrast;
+    if (saved?.saturation) el.saturation.value = saved.saturation;
+    if (typeof saved?.dithering === "boolean") el.dithering.checked = saved.dithering;
+    if (Number(el.contrast.value) !== 100 || Number(el.saturation.value) !== 100 || el.dithering.checked) el.tuning.open = true;
   } catch {}
 }
 
@@ -93,6 +98,16 @@ function samplePixels(image, width, height) {
   return context.getImageData(0, 0, width, height).data;
 }
 
+function tunePixels(data, contrastValue, saturationValue) {
+  const output = new Uint8ClampedArray(data), contrast = contrastValue / 100, saturation = saturationValue / 100;
+  for (let i = 0; i < output.length; i += 4) {
+    let r = 128 + (output[i] - 128) * contrast, g = 128 + (output[i + 1] - 128) * contrast, b = 128 + (output[i + 2] - 128) * contrast;
+    const gray = r * .299 + g * .587 + b * .114;
+    output[i] = gray + (r - gray) * saturation; output[i + 1] = gray + (g - gray) * saturation; output[i + 2] = gray + (b - gray) * saturation;
+  }
+  return output;
+}
+
 function colorDistance(rgb, color) { const dr = rgb[0] - color.r, dg = rgb[1] - color.g, db = rgb[2] - color.b; return dr * dr * .3 + dg * dg * .59 + db * db * .11; }
 function nearestColor(rgb, palette) { let best = palette[0], distance = Infinity; for (const color of palette) { const next = colorDistance(rgb, color); if (next < distance) { distance = next; best = color; } } return best; }
 function choosePalette(data, count) {
@@ -106,6 +121,27 @@ function choosePalette(data, count) {
   const chosen = [];
   for (const rgb of colors) { const color = nearestColor(rgb, DMC); if (!chosen.includes(color)) chosen.push(color); if (chosen.length >= count) break; }
   if (!chosen.length) chosen.push(DMC[0]); return chosen;
+}
+
+function mapPixelsToGrid(data, width, height, palette, useDithering) {
+  if (!useDithering) {
+    const cells = [];
+    for (let i = 0; i < data.length; i += 4) cells.push(data[i + 3] < 80 ? -1 : palette.indexOf(nearestColor([data[i], data[i + 1], data[i + 2]], palette)));
+    return cleanGrid(cells, width, height);
+  }
+  const pixels = new Float32Array(width * height * 3), alpha = new Uint8Array(width * height), cells = Array(width * height).fill(-1);
+  for (let p = 0; p < width * height; p++) { pixels[p * 3] = data[p * 4]; pixels[p * 3 + 1] = data[p * 4 + 1]; pixels[p * 3 + 2] = data[p * 4 + 2]; alpha[p] = data[p * 4 + 3]; }
+  const diffuse = (x, y, error, weight) => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return; const p = y * width + x; if (alpha[p] < 80) return;
+    pixels[p * 3] += error[0] * weight; pixels[p * 3 + 1] += error[1] * weight; pixels[p * 3 + 2] += error[2] * weight;
+  };
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const p = y * width + x; if (alpha[p] < 80) continue;
+    const rgb = [pixels[p * 3], pixels[p * 3 + 1], pixels[p * 3 + 2]], color = nearestColor(rgb, palette); cells[p] = palette.indexOf(color);
+    const error = [rgb[0] - color.r, rgb[1] - color.g, rgb[2] - color.b];
+    diffuse(x + 1, y, error, 7 / 16); diffuse(x - 1, y + 1, error, 3 / 16); diffuse(x, y + 1, error, 5 / 16); diffuse(x + 1, y + 1, error, 1 / 16);
+  }
+  return cells;
 }
 
 function cleanGrid(grid, width, height) {
@@ -126,12 +162,11 @@ async function generate() {
   setBusy(true); await new Promise((resolve) => setTimeout(resolve, 30));
   try {
     const width = Number(el.width.value), height = Math.max(24, Math.round(width * state.image.height / state.image.width));
-    const data = samplePixels(state.image, width, height), palette = choosePalette(data, Number(el.colors.value));
-    let cells = []; for (let i = 0; i < data.length; i += 4) cells.push(data[i + 3] < 80 ? -1 : palette.indexOf(nearestColor([data[i], data[i + 1], data[i + 2]], palette)));
-    cells = cleanGrid(cells, width, height); state.grid = { w: width, h: height, cells }; state.allPalette = palette; state.undo = []; state.redo = [];
+    const data = tunePixels(samplePixels(state.image, width, height), Number(el.contrast.value), Number(el.saturation.value)), palette = choosePalette(data, Number(el.colors.value));
+    const cells = mapPixelsToGrid(data, width, height, palette, el.dithering.checked); state.grid = { w: width, h: height, cells }; state.allPalette = palette; state.undo = []; state.redo = [];
     recalculatePattern(); state.selectedColor = state.palette[0]?.index ?? 0; syncSelectedThread(); renderPalette(); saveSettings();
     el.empty.hidden = true; el.result.hidden = false; el.actions.hidden = false; el.editor.hidden = false; el.editorHint.hidden = false; el.frame.classList.add("editing");
-    track("Pattern generated", { width, colors: state.palette.length, source: state.entryPoint });
+    track("Pattern generated", { width, colors: state.palette.length, source: state.entryPoint, contrast: el.contrast.value, saturation: el.saturation.value, dithering: el.dithering.checked ? "on" : "off" });
   } catch (error) { console.error(error); toast(t("Pattern generation failed. Try a smaller photo.")); }
   finally { setBusy(false); }
 }
@@ -278,6 +313,7 @@ el.heroSample.addEventListener("click", async () => { state.entryPoint = "hero";
 el.upload.addEventListener("click", () => { state.entryPoint = "studio"; track("Photo picker opened", { source: "studio" }); el.file.click(); }); el.file.addEventListener("change", async (event) => { const file = event.target.files[0]; await useFile(file); event.target.value = ""; }); el.sample.addEventListener("click", async () => { state.entryPoint = "studio"; track("Sample tried", { source: "studio" }); await useSample(); }); el.photoTools.addEventListener("click", openPhotoDialog);
 el.regen.addEventListener("click", generate); el.download.addEventListener("click", download); el.print.addEventListener("click", () => { track("Pattern printed", { width: state.grid?.w || 0, colors: state.palette.length }); setView("symbols"); setTimeout(() => window.print(), 100); });
 el.fabric.addEventListener("change", () => { saveSettings(); if (state.grid) updateStats(); }); el.width.addEventListener("input", () => { updateLabels(); saveSettings(); }); el.colors.addEventListener("input", () => { updateLabels(); saveSettings(); }); el.undo.addEventListener("click", undo); el.redo.addEventListener("click", redo);
+[el.contrast, el.saturation].forEach((input) => input.addEventListener("input", () => { updateLabels(); saveSettings(); })); el.dithering.addEventListener("change", saveSettings);
 el.canvas.addEventListener("pointerdown", startGridEdit); el.canvas.addEventListener("pointermove", (event) => state.drawing && editCell(event)); el.canvas.addEventListener("pointerup", finishGridEdit); el.canvas.addEventListener("pointercancel", finishGridEdit);
 $$('.editor-tool').forEach((button) => button.addEventListener("click", () => { state.editTool = button.dataset.tool; syncEditorTools(); })); $$('.tab').forEach((tab) => tab.addEventListener("click", () => setView(tab.dataset.view)));
 $$('.jump-to-studio').forEach((button) => button.addEventListener("click", () => { $("#studio").scrollIntoView({ behavior: "smooth" }); setTimeout(() => el.upload.focus(), 500); }));
@@ -292,7 +328,7 @@ if (document.modelContext?.registerTool) {
   const lifecycle = new AbortController();
   Promise.resolve(document.modelContext.registerTool({
     name: "configure_pet_cross_stitch_pattern", title: "Configure pet cross-stitch pattern", description: "Load the built-in pet photo and set the visible cross-stitch pattern width, color count, and fabric count.",
-    inputSchema: { type: "object", properties: { width: { type: "integer", minimum: 30, maximum: 100 }, colors: { type: "integer", minimum: 6, maximum: 30 }, fabricCount: { type: "integer", enum: [11, 14, 16, 18] } }, additionalProperties: false }, annotations: { readOnlyHint: false, untrustedContentHint: false },
-    async execute(input) { if (input.width !== undefined) el.width.value = Math.round(input.width / 5) * 5; if (input.colors !== undefined) el.colors.value = Math.round(input.colors / 2) * 2; if (input.fabricCount !== undefined) el.fabric.value = String(input.fabricCount); updateLabels(); if (!state.image) await loadImage("/assets/sample-cat.jpg", "maple-cat"); await generate(); return { status: "ready", width: Number(el.width.value), height: state.grid.h, colors: state.palette.length, fabricCount: Number(el.fabric.value) }; }
+    inputSchema: { type: "object", properties: { width: { type: "integer", minimum: 30, maximum: 100 }, colors: { type: "integer", minimum: 6, maximum: 30 }, fabricCount: { type: "integer", enum: [11, 14, 16, 18] }, contrast: { type: "integer", minimum: 70, maximum: 140 }, saturation: { type: "integer", minimum: 50, maximum: 150 }, dithering: { type: "boolean" } }, additionalProperties: false }, annotations: { readOnlyHint: false, untrustedContentHint: false },
+    async execute(input) { if (input.width !== undefined) el.width.value = Math.round(input.width / 5) * 5; if (input.colors !== undefined) el.colors.value = Math.round(input.colors / 2) * 2; if (input.fabricCount !== undefined) el.fabric.value = String(input.fabricCount); if (input.contrast !== undefined) el.contrast.value = Math.round(input.contrast / 5) * 5; if (input.saturation !== undefined) el.saturation.value = Math.round(input.saturation / 5) * 5; if (input.dithering !== undefined) el.dithering.checked = input.dithering; updateLabels(); saveSettings(); if (!state.image) await loadImage("/assets/sample-cat.jpg", "maple-cat"); await generate(); return { status: "ready", width: Number(el.width.value), height: state.grid.h, colors: state.palette.length, fabricCount: Number(el.fabric.value), contrast: Number(el.contrast.value), saturation: Number(el.saturation.value), dithering: el.dithering.checked }; }
   }, { signal: lifecycle.signal })).catch(() => {});
 }
